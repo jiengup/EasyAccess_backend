@@ -33,3 +33,32 @@ def send_auth_code(request):
         else:
             result = {"ret": ret_code, "desc": '验证码已经发送到您的邮箱,请注意查收'}
         return HttpResponse(json.dumps(result), content_type="application/json")
+
+
+def login(request):
+    data = json.loads(request.body)
+    print("request args: ", data)
+    email = data['email']
+    password = data['password']
+    print("receive login request:", email, password)
+    user = User.objects.filter(email=email).first()
+    if not user:
+        result = {"ret": 1, "desc": "此用户不存在"}
+        print("user not exist")
+    else:
+        if password == user.password:
+            result = {"ret": 0,
+                      "desc": "登陆成功",
+                      "email": user.email,
+                      "password": user.password,
+                      "username": user.user_name,
+                      "userType": user.user_type,
+                      "userDesc": user.desc,
+                      "headPortrait": user.head_portrait.url,
+                      "belongToMajor": user.belong_to_major.full_name,
+                      "belongToGrade": user.belong_to_grade.grade}
+            print("login success")
+        else:
+            result = {"ret": 1, "desc": "密码错误"}
+            print("password incorrect")
+    return HttpResponse(json.dumps(result), content_type="application/json")
