@@ -56,7 +56,7 @@ def login(request):
                       "userDesc": user.desc,
                       "headPortrait": user.head_portrait.url,
                       "belongToMajor": user.belong_to_major.full_name,
-                      "belongToGrade": user.belong_to_grade.grade}
+                      "belongToGrade": "null" if user.user_type == User.TEACHER else user.belong_to_grade.grade}
             print("login success")
         else:
             result = {"ret": 1, "desc": "密码错误"}
