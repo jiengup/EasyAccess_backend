@@ -57,7 +57,6 @@ def get_news_list(request):
 def get_news_detail(request):
     try:
         news_id = request.GET.get('_id')
-        print(news_id)
         news = News.objects.filter(id=news_id).first()
         if not news:
             return HttpResponse(json.dumps({
@@ -113,7 +112,8 @@ def get_comment_list(request):
         print(len(comments_list))
         data = []
         for i, comment in enumerate(comments_list):
-            comment_info = {"head_url": comment.author.head_portrait.url,
+            comment_info = {"comment_id": comment.id,
+                            "head_url": comment.author.head_portrait.url,
                             "nickname": comment.author.user_name,
                             "release_time": classify_pub_time(comment.pub_time),
                             "content": comment.content,
@@ -160,4 +160,21 @@ def add_comment(request):
         return HttpResponse(json.dumps({
             'code': 1,
             'data': "pub failed"
+        }), content_type="application/json,charset=utf-8")
+
+
+def modify_comment_stars(request):
+    comment_id = request.GET.get('_id')
+    modified_stars = request.GET.get('modified_stars')
+    try:
+        comment = Comment.objects.get(id=comment_id)
+        comment.total_stars = modified_stars
+        comment.save()
+        return HttpResponse(json.dumps({
+            'code': 0,
+        }), content_type="application/json,charset=utf-8")
+    except Exception as e:
+        print(e)
+        return HttpResponse(json.dumps({
+            'code': 1,
         }), content_type="application/json,charset=utf-8")

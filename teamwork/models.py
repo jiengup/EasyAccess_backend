@@ -19,6 +19,12 @@ class Wanted(models.Model):
     contact_number = models.CharField(max_length=20, default='',
                                       null=True,
                                       blank=True)
+    publisher = models.ForeignKey('myauth.User',
+                                  on_delete=models.SET_NULL,
+                                  related_name='wanted_who_publish',
+                                  null=True,
+                                  blank=True,
+                                  )
     tags = models.ManyToManyField('Tag',
                                   null=True,
                                   blank=True,
@@ -27,5 +33,4 @@ class Wanted(models.Model):
     def __str__(self):
         return self.title
 
-    class Meta:
-        ordering = ['-publish_time']
+

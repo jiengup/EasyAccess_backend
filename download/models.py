@@ -10,6 +10,12 @@ class Course(models.Model):
                             blank=True,
                             )
     submit_time = models.DateTimeField(auto_now=True)
+    belong_to_major = models.ForeignKey('myauth.Major',
+                                        on_delete=models.SET_NULL,
+                                        related_name='course_of_major',
+                                        null=True,
+                                        blank=True,
+                                        )
     belong_to_grade = models.ForeignKey('myauth.Grade',
                                         on_delete=models.SET_NULL,
                                         related_name='course_of_grade',
