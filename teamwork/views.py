@@ -84,3 +84,53 @@ def get_wanted_list(request):
             'code': 1,
             'data': "failed to connect"
         }, ensure_ascii=False), content_type="application/json,charset=utf-8")
+
+
+def get_wanted_detail(request):
+    wanted_id = request.GET.get("_id");
+    wanted = Wanted.objects.get(id=wanted_id)
+    if wanted:
+        data = {"code": 0,
+                "title": wanted.title,
+                "head": wanted.publisher.head_portrait.url,
+                "user_name": wanted.publisher.user_name,
+                "pub_time": str(wanted.publish_time)[0:16],
+                "desc": wanted.desc,
+                "tel": wanted.contact_number,
+                "email": wanted.contact_email}
+    else:
+        data = {"code": 1,
+                "ret": "data error"}
+    return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
+
+
+def publish(request):
+    data = json.loads(request.body)
+    publisher_email = data["publisher_email"]
+    title = data["title"]
+    desc = data["desc"]
+    tel = data["tel"]
+    email = data["email"]
+    tags = data["tags"].split('；')
+    author = User.objects.get(email=publisher_email)
+    try:
+        new_wanted = Wanted.objects.create(title=title,
+                                           desc=desc,
+                                           contact_number=tel,
+                                           contact_email=email,
+                                           publisher=author)
+        for tag_name in tags:
+            tag = Tag.objects.filter(name=tag_name).first()
+            if tag:
+                new_wanted.tags.add(tag)
+            else:
+                tag = Tag.objects.create(name=tag_name)
+                new_wanted.tags.add(tag)
+        return HttpResponse(json.dumps({
+            'code': 0,
+        }), content_type="application/json,charset=utf-8")
+    except Exception as e:
+        print(e)
+        return HttpResponse(json.dumps({
+            'code': 1,
+        }), content_type="application/json,charset=utf-8")
